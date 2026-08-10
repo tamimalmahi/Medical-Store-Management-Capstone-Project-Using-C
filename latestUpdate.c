@@ -58,7 +58,6 @@ void viewMedicine();
 void searchMedicine();
 void updateMedicine();
 void deleteMedicine();
-void monitorInventory();
 void customerCheckout(int customerId);
 
 void registerCustomer();
@@ -77,7 +76,6 @@ void updateCustomerRecord(struct Customer cust);
 void normalizeName(char *str);
 void registerShop();
 int shopLogin();
-int selectShopPortal();
 void getShopFilePath(char *filename, char *outputBuffer);
 void syncMissingMedicines();
 void viewMissingMedicines();
@@ -197,62 +195,6 @@ int shopLogin(){
 
     fclose(fp);
     printf("\nInvalid Shop Username or Password!\n");
-    return 0;
-}
-
-int selectShopPortal(){
-    FILE *fp = fopen("shops.txt", "r");
-    struct Shop shops[50];
-    int count = 0, i, choice;
-
-    if(fp == NULL){
-        printf("\nNo Registered Shops Found!\n");
-        return 0;
-    }
-
-    while(count < 50 && fscanf(fp, "%d %s %s %s %s", &shops[count].id, shops[shops[count].id - 1].name, shops[count].username, shops[count].password, shops[count].folderPath) == 5 || 
-          fscanf(fp, "%d %s %s %s %s", &shops[count].id, shops[count].name, shops[count].username, shops[count].password, shops[count].folderPath) == 5){
-        count++;
-    }
-    fclose(fp);
-
-    if(count == 0){
-        printf("\nNo Registered Shops Found!\n");
-        return 0;
-    }
-
-    printf("\n=== Select a Medical Shop ===\n");
-    for(i = 0; i < count; i++){
-        printf("%d. %s\n", i + 1, shops[i].name);
-    }
-    printf("Choice: ");
-    scanf("%d", &choice);
-
-    if(choice >= 1 && choice <= count){
-        currentShopId = shops[choice - 1].id;
-        strcpy(currentShopFolder, shops[choice - 1].folderPath);
-        printf("\nSelected Shop: %s\n", shops[choice - 1].name);
-        return 1;
-    }
-
-    printf("\nInvalid Selection!\n");
-    return 0;
-}
-
-int adminLogin(){
-    int option;
-    printf("\n=== Shop Admin Authentication ===\n");
-    printf("1. Shop Admin Login\n");
-    printf("2. Register New Shop\n");
-    printf("Choice: ");
-    scanf("%d", &option);
-
-    if(option == 1){
-        return shopLogin();
-    }else if(option == 2){
-        registerShop();
-        return 0;
-    }
     return 0;
 }
 
@@ -888,29 +830,6 @@ void deleteMedicine(){
         printf("\nMedicine Deleted Successfully!\n");
     else
         printf("\nMedicine ID Not Found!\n");
-}
-
-void monitorInventory(){
-    char path[100];
-    getShopFilePath("medicine.txt", path);
-    FILE *fp=fopen(path,"r");
-    if(fp == NULL){
-        printf("\nNo Medicine Records Found!\n");
-        return;
-    }
-    struct Medicine m;
-
-    printf("\n=== Stock Inventory Monitor ===\n");
-    printf("ID\tName\tQty\tStatus\n");
-    while(fscanf(fp,"%d %s %f %d",&m.id,m.name,&m.price,&m.qty) == 4){
-        printf("%d\t%s\t%d\t",m.id,m.name,m.qty);
-        if(m.qty <= 5){
-            printf("LOW STOCK!\n");
-        }else{
-            printf("Available\n");
-        }
-    }
-    fclose(fp);
 }
 
 void customerCheckout(int customerId){
