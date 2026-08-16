@@ -1,3 +1,0 @@
-1 MediCorner admin admin shop_1
-2 KonokDragHouse konok konok shop_2
-3 AbirDragHouse abir abir shop_3
