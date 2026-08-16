@@ -1,0 +1,13 @@
+101 Napa 1.20 0 Beximco Paracetamol fc007061de5f4b4705fef7116b87c01a
+102 NapaExtra 2.50 150 Beximco Paracetamol 452e03ea404f56126e0354151b4c0aee
+103 Ace 1.20 120 Square Paracetamol fc007061de5f4b4705fef7116b87c01a
+104 AcePlus 2.50 100 Square Paracetamol 452e03ea404f56126e0354151b4c0aee
+105 Fast 1.20 80 Acme Paracetamol 4c8d9ac7c62b7fbf21fb2f2ae14dd65b
+106 Sergel20 7.00 0 Incepta Esomeprazole 51d726b7c54c7cc98e1d092be83866f1
+107 Maxpro20 9.00 110 Reneta Esomeprazole 533827184c352d06d783940560d50df3
+108 Esonix20 8.00 95 Popular Esomeprazole f224e52c065d4d8b3290a139458a8d7e
+109 Fexo120 9.00 0 Square Fexofenadine 2f68ad040984e87524a290e4cb58117f
+110 Deslor 6.00 90 Incepta Fexofenadine 0ff67e7d4d7bcc2a9a2fae5325789dcd
+111 Zimax500 35.00 0 Square Azithromycin 69d7e1638c75fb8f7eb3a9f17cdb25f2
+112 Azithrocin500 35.00 60 Beximco Azithromycin f4282888da6b156d42669da003273884
+113 Trus500 35.00 50 Incepta Azithromycin 69d7e1638c75fb8f7eb3a9f17cdb25f2
