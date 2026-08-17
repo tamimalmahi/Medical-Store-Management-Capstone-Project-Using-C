@@ -77,7 +77,6 @@ int readMedicines(struct Medicine *medList);
 void writeMedicines(struct Medicine *medList, int count);
 float decryptPrice(const char *hash);
 int findCustomerByPhone(const char *phone, struct Customer *cust);
-int countTokens(const char *str);
 
 void addMedicine();
 void viewMedicine();
@@ -111,20 +110,6 @@ int getShopPassword(int shopId, char *passwordBuffer);
 int getNextShopId();
 void guestDashboard();
 
-int countTokens(const char *str) {
-    int count = 0;
-    int inToken = 0;
-    while (*str) {
-        if (isspace((unsigned char)*str)) {
-            inToken = 0;
-        } else if (!inToken) {
-            inToken = 1;
-            count++;
-        }
-        str++;
-    }
-    return count;
-}
 
 int readMedicines(struct Medicine *medList) {
     char path[100];
@@ -133,29 +118,11 @@ int readMedicines(struct Medicine *medList) {
     if (fp == NULL) return 0;
     
     int count = 0;
-    char line[256];
-    while (count < MAX_MEDICINE && fgets(line, sizeof(line), fp)) {
-        line[strcspn(line, "\r\n")] = '\0';
-        if (strlen(line) == 0) continue;
-        
-        int n = sscanf(line, "%d %s %f %d %s %s %s", 
-                       &medList[count].id, medList[count].name, &medList[count].price, &medList[count].qty, 
-                       medList[count].company, medList[count].category, medList[count].purchasedPrice);
-        if (n == 7) {
-            count++;
-        } else if (n >= 4) {
-            if (n < 6) {
-                strcpy(medList[count].category, "General");
-            }
-            if (n < 5) {
-                strcpy(medList[count].company, "Unknown");
-            }
-            float defaultPurchased = medList[count].price * 0.70f;
-            char tempPriceStr[32];
-            sprintf(tempPriceStr, "%.2f", defaultPurchased);
-            computeMD5(tempPriceStr, medList[count].purchasedPrice);
-            count++;
-        }
+    while (count < MAX_MEDICINE && 
+           fscanf(fp, "%d %s %f %d %s %s %s", 
+                  &medList[count].id, medList[count].name, &medList[count].price, &medList[count].qty, 
+                  medList[count].company, medList[count].category, medList[count].purchasedPrice) == 7) {
+        count++;
     }
     fclose(fp);
     return count;
@@ -366,46 +333,20 @@ int getNextCustomerId(){
 int getNextPurchaseId(){
     char path[100];
     getShopFilePath("purchase.txt", path);
-    FILE *fp=fopen(path,"r");
+    FILE *fp = fopen(path, "r");
     struct Purchase p;
-    int maxId=0;
+    int maxId = 0;
 
-    if(fp == NULL){
-        return 1;
-    }
+    if(fp == NULL) return 1;
 
-    char line[256];
-    while(fgets(line, sizeof(line), fp)){
-        line[strcspn(line, "\r\n")] = '\0';
-        if (strlen(line) == 0) continue;
-        
-        int tokens = countTokens(line);
-        int n = 0;
-        if (tokens >= 10) {
-            float profit_temp;
-            n = sscanf(line, "%d %d %s %s %f %f %f %f %f %s", 
-                       &p.id, &p.customerId, p.customerName, p.phone, 
-                       &p.subtotal, &p.discount, &p.tax, &p.total, &profit_temp, p.date);
-        } else if (tokens == 9) {
-            n = sscanf(line, "%d %d %s %s %f %f %f %f %s", 
-                       &p.id, &p.customerId, p.customerName, p.phone, 
-                       &p.subtotal, &p.discount, &p.tax, &p.total, p.date);
-        } else if (tokens == 8) {
-            n = sscanf(line, "%d %d %s %s %f %f %f %f", 
-                       &p.id, &p.customerId, p.customerName, p.phone, 
-                       &p.subtotal, &p.discount, &p.tax, &p.total);
-            if (n == 8) {
-                strcpy(p.date, "");
-            }
-        }
-        if (n >= 8) {
-            if (p.id > maxId) {
-                maxId = p.id;
-            }
+    while(fscanf(fp, "%d %d %s %s %f %f %f %f %f %s", 
+                 &p.id, &p.customerId, p.customerName, p.phone, 
+                 &p.subtotal, &p.discount, &p.tax, &p.total, &p.profit, p.date) == 10){
+        if (p.id > maxId) {
+            maxId = p.id;
         }
     }
     fclose(fp);
-
     return maxId + 1;
 }
 
@@ -533,8 +474,8 @@ void viewCustomerProfile(int customerId){
 void viewPreviousPurchases(int customerId){
     char path[100];
     getShopFilePath("purchase.txt", path);
-    FILE *fp=fopen(path,"r");
-    int found=0;
+    FILE *fp = fopen(path, "r");
+    int found = 0;
 
     if(fp == NULL){
         printf("\nNo Purchase Records Found!\n");
@@ -551,33 +492,11 @@ void viewPreviousPurchases(int customerId){
         return;
     }
 
-    char line[256];
-    while(fgets(line, sizeof(line), fp)){
-        line[strcspn(line, "\r\n")] = '\0';
-        if (strlen(line) == 0) continue;
-
-        int tokens = countTokens(line);
-        int n = 0;
-        struct Purchase p;
-        p.date[0] = '\0';
-        if (tokens >= 10) {
-            float profit_temp;
-            n = sscanf(line, "%d %d %s %s %f %f %f %f %f %s", 
-                       &p.id, &p.customerId, p.customerName, p.phone, 
-                       &p.subtotal, &p.discount, &p.tax, &p.total, &profit_temp, p.date);
-        } else if (tokens == 9) {
-            n = sscanf(line, "%d %d %s %s %f %f %f %f %s", 
-                       &p.id, &p.customerId, p.customerName, p.phone, 
-                       &p.subtotal, &p.discount, &p.tax, &p.total, p.date);
-        } else if (tokens == 8) {
-            n = sscanf(line, "%d %d %s %s %f %f %f %f", 
-                       &p.id, &p.customerId, p.customerName, p.phone, 
-                       &p.subtotal, &p.discount, &p.tax, &p.total);
-            if (n == 8) {
-                strcpy(p.date, "");
-            }
-        }
-        if (n >= 8 && p.customerId == customerId) {
+    struct Purchase p;
+    while(fscanf(fp, "%d %d %s %s %f %f %f %f %f %s", 
+                 &p.id, &p.customerId, p.customerName, p.phone, 
+                 &p.subtotal, &p.discount, &p.tax, &p.total, &p.profit, p.date) == 10){
+        if (p.customerId == customerId) {
             if (count >= capacity) {
                 capacity *= 2;
                 struct Purchase *temp = (struct Purchase *)realloc(purchases, capacity * sizeof(struct Purchase));
@@ -594,9 +513,7 @@ void viewPreviousPurchases(int customerId){
 
     if(!found || count == 0){
         printf("\nNo Previous Purchases Found!\n");
-        if (purchases != NULL) {
-            free(purchases);
-        }
+        free(purchases);
         return;
     }
 
@@ -618,10 +535,12 @@ void viewPreviousPurchases(int customerId){
         }
 
         printf("\n=== Previous Purchases | Page %d of %d ===\n", page, totalPages);
-        printf("ID\tSubtotal\tDiscount\tTax\tTotal\t\tDate\n");
+        printf("%-6s %-12s %-12s %-10s %-12s %-12s\n", "ID", "Subtotal", "Discount", "Tax", "Total", "Date");
+        printf("----------------------------------------------------------------------\n");
         for(i = start; i < end; i++){
-            struct Purchase p = purchases[i];
-            printf("%d\t%.2f\t\t%.2f\t\t%.2f\t%.2f\t%s\n", p.id, p.subtotal, p.discount, p.tax, p.total, (strlen(p.date) > 0 ? p.date : "N/A"));
+            struct Purchase item = purchases[i];
+            printf("%-6d %-12.2f %-12.2f %-10.2f %-12.2f %-12s\n", 
+                   item.id, item.subtotal, item.discount, item.tax, item.total, item.date);
         }
 
         if(totalPages == 1){
@@ -811,53 +730,28 @@ void adminSalesDashboard(){
     printf("-------------------------------------------------\n");
 
     if(fp != NULL){
-        char line[256];
-        while(fgets(line, sizeof(line), fp)){
-            line[strcspn(line, "\r\n")] = '\0';
-            if (strlen(line) == 0) continue;
+        while(fscanf(fp, "%d %d %s %s %f %f %f %f %f %s", 
+                     &p.id, &p.customerId, p.customerName, p.phone, 
+                     &p.subtotal, &p.discount, &p.tax, &p.total, &p.profit, p.date) == 10){
             
-            int tokens = countTokens(line);
-            int n = 0;
-            if (tokens >= 10) {
-                n = sscanf(line, "%d %d %s %s %f %f %f %f %f %s", 
-                           &p.id, &p.customerId, p.customerName, p.phone, 
-                           &p.subtotal, &p.discount, &p.tax, &p.total, &p.profit, p.date);
-            } else if (tokens == 9) {
-                n = sscanf(line, "%d %d %s %s %f %f %f %f %s", 
-                           &p.id, &p.customerId, p.customerName, p.phone, 
-                           &p.subtotal, &p.discount, &p.tax, &p.total, p.date);
-                if (n == 9) {
-                    p.profit = p.total * 0.20f;
-                }
-            } else if (tokens == 8) {
-                n = sscanf(line, "%d %d %s %s %f %f %f %f", 
-                           &p.id, &p.customerId, p.customerName, p.phone, 
-                           &p.subtotal, &p.discount, &p.tax, &p.total);
-                if (n == 8) {
-                    p.profit = p.total * 0.20f;
-                    strcpy(p.date, "");
-                }
-            }
-
             totalSales += p.total;
             totalProfit += p.profit;
-            if(strlen(p.date) > 0){
-                if(strncmp(p.date, todayStr, 10) == 0){
-                    dailySales += p.total;
-                    dailyProfit += p.profit;
-                }
-                if(strncmp(p.date, monthStr, 7) == 0){
-                    monthlySales += p.total;
-                    monthlyProfit += p.profit;
-                }
+
+            if(strncmp(p.date, todayStr, 10) == 0){
+                dailySales += p.total;
+                dailyProfit += p.profit;
+            }
+            if(strncmp(p.date, monthStr, 7) == 0){
+                monthlySales += p.total;
+                monthlyProfit += p.profit;
             }
         }
         fclose(fp);
     }
 
-    printf("Daily Sales Record  : %.2f | Daily Profit: %.2f\n", dailySales, dailyProfit);
-    printf("Monthly Sales Record: %.2f | Monthly Profit: %.2f\n", monthlySales, monthlyProfit);
-    printf("Total All-Time Sales: %.2f | Total Profit: %.2f\n", totalSales, totalProfit);
+    printf("Daily Sales Record   : %.2f | Daily Profit: %.2f\n", dailySales, dailyProfit);
+    printf("Monthly Sales Record : %.2f | Monthly Profit: %.2f\n", monthlySales, monthlyProfit);
+    printf("Total All-Time Sales : %.2f | Total Profit: %.2f\n", totalSales, totalProfit);
     printf("-------------------------------------------------\n");
 
     struct Medicine mList[MAX_MEDICINE];
