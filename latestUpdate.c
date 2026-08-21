@@ -4,11 +4,11 @@
 #include<ctype.h>
 #include<time.h>
 #include "md5.h"
-
 #define MAX_MEDICINE 250
 #define MAX_CART 50
 #define PAGE_SIZE 20
 
+//Diya
 struct Medicine{
     int id;
     char name[30];
@@ -19,13 +19,14 @@ struct Medicine{
     char purchasedPrice[35];
 };
 
+//Diya
 struct CartItem{
     int id;
     char name[30];
     float price;
     int qty;
 };
-
+//Diya
 struct Customer{
     int id;
     char name[30];
@@ -34,6 +35,7 @@ struct Customer{
     int points;
 };
 
+//Diya
 struct Purchase{
     int id;
     int customerId;
@@ -44,9 +46,10 @@ struct Purchase{
     float tax;
     float total;
     float profit;
-    char date[15]; 
+    char date[15];
 };
 
+//Abir
 struct Shop{
     int id;
     char name[30];
@@ -72,19 +75,18 @@ int getIntegerInput(int *output) {
     }
     return 1;
 }
-
+//Diya
 int readMedicines(struct Medicine *medList);
 void writeMedicines(struct Medicine *medList, int count);
 float decryptPrice(const char *hash);
 int findCustomerByPhone(const char *phone, struct Customer *cust);
-
 void addMedicine();
 void viewMedicine();
 void searchMedicine();
 void updateMedicine();
 void deleteMedicine();
-void customerCheckout(int customerId);
 
+//Tamim
 void registerCustomer();
 int customerLogin();
 void customerDashboard(int customerId);
@@ -92,50 +94,51 @@ void viewCustomerProfile(int customerId);
 void viewPreviousPurchases(int customerId);
 void checkLoyaltyPoints(int customerId);
 void addLoyaltyPoints(int customerId, float total);
-
+void customerCheckout(int customerId);
 int getNextCustomerId();
 int getNextPurchaseId();
 int findCustomerById(int customerId, struct Customer *cust);
 void updateCustomerRecord(struct Customer cust);
+void requestMissingMedicine(int customerId);
 
+//Abir
 void normalizeName(char *str);
 void registerShop();
 int shopLogin();
 void getShopFilePath(char *filename, char *outputBuffer);
 void syncMissingMedicines();
 void viewMissingMedicines();
-void requestMissingMedicine(int customerId);
 void adminSalesDashboard();
 int getShopPassword(int shopId, char *passwordBuffer);
 int getNextShopId();
 void guestDashboard();
 
-
+//Diya
 int readMedicines(struct Medicine *medList) {
     char path[100];
     getShopFilePath("medicine.txt", path);
     FILE *fp = fopen(path, "r");
     if (fp == NULL) return 0;
-    
+
     int count = 0;
-    while (count < MAX_MEDICINE && 
-           fscanf(fp, "%d %s %f %d %s %s %s", 
-                  &medList[count].id, medList[count].name, &medList[count].price, &medList[count].qty, 
+    while (count < MAX_MEDICINE &&
+           fscanf(fp, "%d %s %f %d %s %s %s",
+                  &medList[count].id, medList[count].name, &medList[count].price, &medList[count].qty,
                   medList[count].company, medList[count].category, medList[count].purchasedPrice) == 7) {
         count++;
     }
     fclose(fp);
     return count;
 }
-
+//Diya
 void writeMedicines(struct Medicine *medList, int count) {
     char path[100];
     getShopFilePath("medicine.txt", path);
     FILE *fp = fopen(path, "w");
     if (fp == NULL) return;
     for (int i = 0; i < count; i++) {
-        fprintf(fp, "%d %s %.2f %d %s %s %s\n", 
-                medList[i].id, medList[i].name, medList[i].price, medList[i].qty, 
+        fprintf(fp, "%d %s %.2f %d %s %s %s\n",
+                medList[i].id, medList[i].name, medList[i].price, medList[i].qty,
                 medList[i].company, medList[i].category, medList[i].purchasedPrice);
     }
     fclose(fp);
@@ -168,7 +171,7 @@ float decryptPrice(const char *hash) {
     }
     return 0.0f;
 }
-
+//Tamim
 int findCustomerByPhone(const char *phone, struct Customer *cust) {
     char path[100];
     getShopFilePath("customer.txt", path);
@@ -190,6 +193,7 @@ int findCustomerByPhone(const char *phone, struct Customer *cust) {
     return 0;
 }
 
+//Abir
 void normalizeName(char *str){
     int i = 0;
     if(str[0] == '\0') return;
@@ -206,7 +210,7 @@ void getShopFilePath(char *filename, char *outputBuffer){
         strcpy(outputBuffer, filename);
     }
 }
-
+//Abir
 int getNextShopId(){
     FILE *fp = fopen("shops.txt", "r");
     struct Shop s;
@@ -218,7 +222,7 @@ int getNextShopId(){
     fclose(fp);
     return maxId + 1;
 }
-
+//Abir
 void registerShop(){
     FILE *fp = fopen("shops.txt", "a");
     struct Shop s;
@@ -309,6 +313,7 @@ int shopLogin(){
     return 0;
 }
 
+//Tamim
 int getNextCustomerId(){
     char path[100];
     getShopFilePath("customer.txt", path);
@@ -330,6 +335,7 @@ int getNextCustomerId(){
     return maxId + 1;
 }
 
+//Tamim
 int getNextPurchaseId(){
     char path[100];
     getShopFilePath("purchase.txt", path);
@@ -339,8 +345,8 @@ int getNextPurchaseId(){
 
     if(fp == NULL) return 1;
 
-    while(fscanf(fp, "%d %d %s %s %f %f %f %f %f %s", 
-                 &p.id, &p.customerId, p.customerName, p.phone, 
+    while(fscanf(fp, "%d %d %s %s %f %f %f %f %f %s",
+                 &p.id, &p.customerId, p.customerName, p.phone,
                  &p.subtotal, &p.discount, &p.tax, &p.total, &p.profit, p.date) == 10){
         if (p.id > maxId) {
             maxId = p.id;
@@ -350,6 +356,7 @@ int getNextPurchaseId(){
     return maxId + 1;
 }
 
+//Tamim
 int findCustomerById(int customerId, struct Customer *cust){
     char path[100];
     getShopFilePath("customer.txt", path);
@@ -372,6 +379,7 @@ int findCustomerById(int customerId, struct Customer *cust){
     return 0;
 }
 
+//Tamim
 void updateCustomerRecord(struct Customer cust){
     char path[100], tempPath[100];
     getShopFilePath("customer.txt", path);
@@ -401,6 +409,7 @@ void updateCustomerRecord(struct Customer cust){
     rename(tempPath,path);
 }
 
+//Tamim
 void registerCustomer(){
     char path[100];
     getShopFilePath("customer.txt", path);
@@ -440,6 +449,7 @@ void registerCustomer(){
     printf("Use your Phone Number (%s) for future login.\n", c.phone);
 }
 
+//Tamim
 int customerLogin(){
     char phone[15];
     struct Customer c;
@@ -456,6 +466,7 @@ int customerLogin(){
     return 0;
 }
 
+//Tamim
 void viewCustomerProfile(int customerId){
     struct Customer c;
 
@@ -471,6 +482,7 @@ void viewCustomerProfile(int customerId){
     }
 }
 
+//Tamim
 void viewPreviousPurchases(int customerId){
     char path[100];
     getShopFilePath("purchase.txt", path);
@@ -493,8 +505,8 @@ void viewPreviousPurchases(int customerId){
     }
 
     struct Purchase p;
-    while(fscanf(fp, "%d %d %s %s %f %f %f %f %f %s", 
-                 &p.id, &p.customerId, p.customerName, p.phone, 
+    while(fscanf(fp, "%d %d %s %s %f %f %f %f %f %s",
+                 &p.id, &p.customerId, p.customerName, p.phone,
                  &p.subtotal, &p.discount, &p.tax, &p.total, &p.profit, p.date) == 10){
         if (p.customerId == customerId) {
             if (count >= capacity) {
@@ -539,7 +551,7 @@ void viewPreviousPurchases(int customerId){
         printf("----------------------------------------------------------------------\n");
         for(i = start; i < end; i++){
             struct Purchase item = purchases[i];
-            printf("%-6d %-12.2f %-12.2f %-10.2f %-12.2f %-12s\n", 
+            printf("%-6d %-12.2f %-12.2f %-10.2f %-12.2f %-12s\n",
                    item.id, item.subtotal, item.discount, item.tax, item.total, item.date);
         }
 
@@ -576,6 +588,7 @@ void checkLoyaltyPoints(int customerId){
     }
 }
 
+//Tamim
 void addLoyaltyPoints(int customerId, float total){
     struct Customer c;
     int points;
@@ -593,6 +606,7 @@ void addLoyaltyPoints(int customerId, float total){
     }
 }
 
+//Diya
 void syncMissingMedicines(){
     struct Medicine mList[MAX_MEDICINE];
     int mCount = readMedicines(mList);
@@ -649,6 +663,7 @@ void syncMissingMedicines(){
     }
 }
 
+//Diya
 void viewMissingMedicines(){
     syncMissingMedicines();
     char path[100];
@@ -673,6 +688,7 @@ void viewMissingMedicines(){
     fclose(fp);
 }
 
+//Tamim
 void requestMissingMedicine(int customerId){
     if(customerId == 0){
         printf("\nOnly registered customers can request for a medicine!\n");
@@ -685,7 +701,7 @@ void requestMissingMedicine(int customerId){
     normalizeName(name);
 
     getShopFilePath("missing_medicine.txt", path);
-    
+
     FILE *fp = fopen(path, "r");
     char existing[30];
     if(fp != NULL){
@@ -710,6 +726,7 @@ void requestMissingMedicine(int customerId){
     printf("\nMedicine request submitted successfully! Added to missing list.\n");
 }
 
+//Abir
 void adminSalesDashboard(){
     char path[100];
     getShopFilePath("purchase.txt", path);
@@ -718,7 +735,7 @@ void adminSalesDashboard(){
     struct Purchase p;
     float dailySales = 0.0, monthlySales = 0.0, totalSales = 0.0;
     float dailyProfit = 0.0, monthlyProfit = 0.0, totalProfit = 0.0;
-    
+
     time_t t = time(NULL);
     struct tm tm = *localtime(&t);
     char todayStr[64], monthStr[64];
@@ -730,10 +747,10 @@ void adminSalesDashboard(){
     printf("-------------------------------------------------\n");
 
     if(fp != NULL){
-        while(fscanf(fp, "%d %d %s %s %f %f %f %f %f %s", 
-                     &p.id, &p.customerId, p.customerName, p.phone, 
+        while(fscanf(fp, "%d %d %s %s %f %f %f %f %f %s",
+                     &p.id, &p.customerId, p.customerName, p.phone,
                      &p.subtotal, &p.discount, &p.tax, &p.total, &p.profit, p.date) == 10){
-            
+
             totalSales += p.total;
             totalProfit += p.profit;
 
@@ -775,6 +792,7 @@ void adminSalesDashboard(){
     printf("=================================================\n");
 }
 
+//Tamim
 void customerDashboard(int customerId){
     int op;
 
@@ -804,6 +822,7 @@ void customerDashboard(int customerId){
     }while(op!=8);
 }
 
+//Tamim
 void guestDashboard(){
     int op;
 
@@ -827,6 +846,7 @@ void guestDashboard(){
     }while(op!=5);
 }
 
+//Diya
 void addMedicine(){
     struct Medicine medList[MAX_MEDICINE];
     int count = readMedicines(medList);
@@ -834,7 +854,7 @@ void addMedicine(){
         printf("\nInventory is Full!\n");
         return;
     }
-    
+
     struct Medicine m;
     printf("\nID: ");
     if (!getIntegerInput(&m.id)) {
@@ -869,7 +889,7 @@ void addMedicine(){
     printf("Category: ");
     scanf("%s",m.category);
     normalizeName(m.category);
-    
+
     float purchasedPrice;
     printf("Purchased Price: ");
     if (scanf("%f",&purchasedPrice) != 1) {
@@ -877,7 +897,7 @@ void addMedicine(){
         printf("\nInvalid Price!\n");
         return;
     }
-    
+
     char tempPriceStr[32];
     sprintf(tempPriceStr, "%.2f", purchasedPrice);
     computeMD5(tempPriceStr, m.purchasedPrice);
@@ -889,6 +909,7 @@ void addMedicine(){
     printf("\nMedicine Added Successfully!\n");
 }
 
+//Diya
 void viewMedicine(){
     struct Medicine m[MAX_MEDICINE];
     int count = readMedicines(m);
@@ -936,6 +957,7 @@ void viewMedicine(){
     }while(op!=3);
 }
 
+//diya
 void searchMedicine(){
     struct Medicine m[MAX_MEDICINE];
     int count = readMedicines(m);
@@ -960,7 +982,7 @@ void searchMedicine(){
     if (foundIdx != -1) {
         printf("\nFound: ID: %d | Name: %s | Company: %s | Category: %s | Price: %.2f | Qty: %d\n",
                m[foundIdx].id, m[foundIdx].name, m[foundIdx].company, m[foundIdx].category, m[foundIdx].price, m[foundIdx].qty);
-        
+
         if (m[foundIdx].qty == 0) {
             printf("\nStatus: OUT OF STOCK (Not Available)\n");
             printf("Recommendations (Same category '%s' from other companies):\n", m[foundIdx].category);
@@ -979,7 +1001,7 @@ void searchMedicine(){
         }
     } else {
         printf("\nMedicine '%s' Not Found!\n", key);
-        
+
         int partialFound = 0;
         for (int i = 0; i < count; i++) {
             if (strstr(m[i].name, key) != NULL || strstr(key, m[i].name) != NULL) {
@@ -1001,7 +1023,7 @@ void searchMedicine(){
                 printf("Enter Category Name: ");
                 scanf("%s", catKey);
                 normalizeName(catKey);
-                
+
                 int catFound = 0;
                 printf("\nMedicines in category '%s':\n", catKey);
                 printf("%-8s %-20s %-15s %-10s %-8s\n", "ID", "Name", "Company", "Price", "Qty");
@@ -1020,6 +1042,7 @@ void searchMedicine(){
     }
 }
 
+//Diya
 void updateMedicine(){
     struct Medicine m[MAX_MEDICINE];
     int count = readMedicines(m);
@@ -1058,7 +1081,7 @@ void updateMedicine(){
             printf("Enter New Category: ");
             scanf("%s",m[i].category);
             normalizeName(m[i].category);
-            
+
             float purchasedPrice;
             printf("Enter New Purchased Price: ");
             if (scanf("%f",&purchasedPrice) != 1) {
@@ -1082,6 +1105,7 @@ void updateMedicine(){
     }
 }
 
+//Diya
 void deleteMedicine(){
     struct Medicine m[MAX_MEDICINE];
     int count = readMedicines(m);
@@ -1115,6 +1139,7 @@ void deleteMedicine(){
     }
 }
 
+//Tamim
 void customerCheckout(int customerId){
     struct CartItem cart[MAX_CART];
     struct Customer cust;
@@ -1207,7 +1232,7 @@ void customerCheckout(int customerId){
         float itemTotal = cart[i].price * cart[i].qty;
         subtotal += itemTotal;
         printf("%s\t%.2f\t%d\t%.2f\n", cart[i].name, cart[i].price, cart[i].qty, itemTotal);
-        
+
         for (int j = 0; j < count; j++) {
             if (mList[j].id == cart[i].id) {
                 float purPrice = decryptPrice(mList[j].purchasedPrice);
@@ -1259,7 +1284,7 @@ void customerCheckout(int customerId){
     char purPath[100];
     getShopFilePath("purchase.txt", purPath);
     FILE *fpur = fopen(purPath,"a");
-    
+
     time_t t = time(NULL);
     struct tm tm = *localtime(&t);
     char todayStr[64];
@@ -1366,6 +1391,7 @@ int main(){
 
         switch(choice){
 
+        //Abir
         case 1:
             if(shopLogin()){
                 do{
@@ -1383,6 +1409,7 @@ int main(){
                     if(op==1) {
                         adminSalesDashboard();
                     }
+                    //Diya
                     else if(op==2) {
                         int invOp;
                         do {
@@ -1453,6 +1480,7 @@ int main(){
             }
             break;
 
+            //Tamim
         case 2:
             do{
                 printf("\n--- Customer Option ---\n");
